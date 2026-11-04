@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutoring Availability · 家教時段</title>
+<meta name="description" content="Tutoring availability, shown in your own time zone. 家教可上課時段，自動換算成你的時區。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%97%93%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #ffffff;
+    --text: #1d1d1f;
+    --muted: #6e6e73;
+    --line: #e5e5e2;
+    --accent: #2f6f5e;
+    --accent-soft: #e4f0ec;
+    --accent-hover: #d3e8e0;
+    --warn-soft: #fdf3e1;
+    --warn-text: #7a5410;
+    --err: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161617;
+      --card: #1f1f21;
+      --text: #f2f2f2;
+      --muted: #a1a1a6;
+      --line: #313134;
+      --accent: #7cc4ad;
+      --accent-soft: #1f3a32;
+      --accent-hover: #285044;
+      --warn-soft: #3a2f1a;
+      --warn-text: #f1cf8f;
+      --err: #f2b8b5;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 560px; margin: 0 auto; padding: 32px 16px 48px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  h1 { font-size: 1.5rem; margin: 0; letter-spacing: -0.01em; }
+  button { font: inherit; }
+  .lang {
+    flex: none; border: 1px solid var(--line); background: var(--card); color: var(--text);
+    border-radius: 999px; padding: 6px 12px; font-size: .875rem; cursor: pointer;
+  }
+  .notice {
+    background: var(--warn-soft); color: var(--warn-text);
+    border-radius: 10px; padding: 10px 14px; margin: 20px 0 0; font-size: .9375rem;
+  }
+  .mine {
+    background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; margin: 12px 0 0; font-size: .9375rem;
+  }
+  .mine ul { margin: 4px 0 0; padding-left: 20px; }
+  .mine small { color: var(--muted); }
+  .tz {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    margin: 20px 0 4px; font-size: .9375rem; color: var(--muted);
+  }
+  select, input {
+    font: inherit; color: var(--text); background: var(--card);
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; max-width: 100%;
+  }
+  .hint { color: var(--muted); font-size: .875rem; margin: 0 0 4px; }
+  .days { list-style: none; margin: 0; padding: 0; }
+  .day {
+    display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: start;
+    padding: 14px 0; border-bottom: 1px solid var(--line);
+  }
+  .day:last-child { border-bottom: 0; }
+  .date { font-weight: 600; line-height: 1.3; }
+  .date small { display: block; font-weight: 400; color: var(--muted); font-size: .8125rem; }
+  .today .date::after {
+    content: attr(data-today); display: inline-block; margin-top: 4px;
+    font-size: .6875rem; font-weight: 600; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 4px; padding: 0 4px;
+  }
+  .slots { display: flex; flex-wrap: wrap; gap: 8px; min-height: 28px; align-items: center; }
+  .slot {
+    background: var(--accent-soft); color: var(--accent); font-weight: 600; border: 0;
+    border-radius: 8px; padding: 4px 10px; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  button.slot { cursor: pointer; }
+  button.slot:hover, button.slot:focus-visible { background: var(--accent-hover); }
+  .slot sup { font-weight: 400; font-size: .7em; margin-left: 2px; }
+  .none { color: var(--muted); font-size: .9375rem; }
+  .empty { color: var(--muted); padding: 24px 0; }
+  footer { margin-top: 32px; color: var(--muted); font-size: .8125rem; }
+
+  dialog {
+    border: 0; border-radius: 14px; padding: 20px; width: min(360px, calc(100vw - 32px));
+    background: var(--card); color: var(--text); box-shadow: 0 10px 40px rgba(0,0,0,.25);
+  }
+  dialog::backdrop { background: rgba(0,0,0,.35); }
+  dialog h2 { font-size: 1.125rem; margin: 0 0 16px; }
+  dialog label { display: block; font-size: .875rem; color: var(--muted); margin-bottom: 12px; }
+  dialog label > input, dialog label > select { display: block; width: 100%; margin-top: 4px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .msg { min-height: 1.5em; margin: 0 0 12px; font-size: .9375rem; }
+  .msg.err { color: var(--err); }
+  .msg.ok { color: var(--accent); font-weight: 600; }
+  .actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .actions button { border-radius: 8px; padding: 8px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--text); }
+  .actions .primary { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
+  .actions button:disabled { opacity: .5; cursor: default; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 data-i18n="title"></h1>
+    <button class="lang" id="lang" type="button"></button>
+  </header>
+
+  <p class="notice" id="notice" hidden></p>
+  <div class="mine" id="mine" hidden></div>
+
+  <div class="tz">
+    <label for="tz" data-i18n="tzLabel"></label>
+    <select id="tz"></select>
+  </div>
+  <p class="hint" id="hint" data-i18n="hint" hidden></p>
+
+  <ul class="days" id="days"></ul>
+
+  <footer>
+    <span data-i18n="updated"></span> <span id="updated"></span>
+    · <span data-i18n="footnote"></span>
+  </footer>
+</main>
+
+<dialog id="dlg">
+  <form id="form">
+    <h2 id="dlgTitle"></h2>
+    <label><span data-i18n="name"></span>
+      <input id="name" required maxlength="40" autocomplete="name">
+    </label>
+    <div class="row">
+      <label><span data-i18n="start"></span><select id="start"></select></label>
+      <label><span data-i18n="length"></span><select id="dur"></select></label>
+    </div>
+    <p class="msg" id="msg"></p>
+    <div class="actions">
+      <button type="button" id="cancel" data-i18n="cancel"></button>
+      <button type="submit" id="submit" class="primary" data-i18n="submit"></button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+// ===== 設定 =====
+// Google Apps Script 部署後的網址（…/exec）。空字串 = 只顯示時段、不能預約。
+const BOOKING_URL = "";
+
+const I18N = {
+  zh: {
+    title: "家教可上課時段",
+    tzLabel: "顯示時區：",
+    hint: "點選時段即可預約",
+    today: "今天",
+    none: "無空檔",
+    empty: "近期沒有開放時段，請直接聯絡我。",
+    updated: "更新於",
+    footnote: "時間已自動換算成你所選的時區",
+    langBtn: "English",
+    loadError: "時段資料讀取失敗，請重新整理。",
+    name: "你的名字",
+    start: "開始",
+    length: "時長",
+    cancel: "取消",
+    close: "關閉",
+    submit: "送出預約",
+    sending: "送出中…",
+    bookTitle: (d) => `預約 ${d}`,
+    hours: (h) => `${h} 小時`,
+    ok: "已送出！老師確認後會再跟你聯絡。",
+    errName: "請輸入名字。",
+    errConflict: "這段時間剛被別人預約了，請換一個時段。",
+    errUnavailable: "這段時間已經不開放了，請重新整理後再選。",
+    errGeneric: "送出失敗，請稍後再試。",
+    mine: "你的預約",
+    pending: "待老師確認",
+  },
+  en: {
+    title: "Tutoring Availability",
+    tzLabel: "Time zone:",
+    hint: "Tap a time to book",
+    today: "TODAY",
+    none: "Unavailable",
+    empty: "No open slots right now — please contact me directly.",
+    updated: "Updated",
+    footnote: "Times are converted to the time zone you select",
+    langBtn: "中文",
+    loadError: "Couldn't load availability. Please refresh.",
+    name: "Your name",
+    start: "Start",
+    length: "Length",
+    cancel: "Cancel",
+    close: "Close",
+    submit: "Book",
+    sending: "Sending…",
+    bookTitle: (d) => `Book ${d}`,
+    hours: (h) => `${h} h`,
+    ok: "Sent! I'll confirm with you soon.",
+    errName: "Please enter your name.",
+    errConflict: "Someone just booked this time — please pick another.",
+    errUnavailable: "This time is no longer open — please refresh and try again.",
+    errGeneric: "Couldn't send. Please try again later.",
+    mine: "Your bookings",
+    pending: "awaiting confirmation",
+  },
+};
+
+const COMMON_TZ = [
+  "Asia/Taipei", "Asia/Shanghai", "Asia/Hong_Kong", "Asia/Tokyo", "Asia/Seoul", "Asia/Singapore",
+  "Australia/Sydney", "Europe/London", "Europe/Berlin",
+  "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "America/Vancouver",
+];
+const MIN = 60000, STEP = 30 * MIN, MIN_LEN = 60 * MIN;
+const LENGTHS = [60, 90, 120, 150, 180].map((m) => m * MIN);
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+let lang = store.get("lang") || (/^zh/i.test(navigator.language || "") ? "zh" : "en");
+const detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Taipei";
+let viewTz = store.get("tz") || detectedTz;
+let data = null;
+let booked = [];
+let mine = [];
+try { mine = JSON.parse(store.get("mine") || "[]"); } catch { mine = []; }
+
+// ---- 時區工具 ----
+function partsIn(ts, tz) {
+  const p = {};
+  new Intl.DateTimeFormat("en-US", {
+    timeZone: tz, hourCycle: "h23",
+    year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+  }).formatToParts(ts).forEach(({ type, value }) => { p[type] = value; });
+  return p;
+}
+function offsetMs(ts, tz) {
+  const p = partsIn(ts, tz);
+  const asUtc = Date.UTC(+p.year, p.month - 1, +p.day, +p.hour % 24, +p.minute);
+  return asUtc - Math.floor(ts / MIN) * MIN;
+}
+// 「某時區的牆上時間」→ 絕對時間戳
+function zonedToTs(dateStr, timeStr, tz) {
+  const [y, mo, d] = dateStr.split("-").map(Number);
+  const [h, mi] = timeStr.split(":").map(Number);
+  const wall = Date.UTC(y, mo - 1, d, h, mi);
+  let ts = wall - offsetMs(wall, tz);
+  ts = wall - offsetMs(ts, tz); // 第二次修正，處理日光節約切換附近
+  return ts;
+}
+function dayKey(ts, tz) {
+  const p = partsIn(ts, tz);
+  return `${p.year}-${p.month}-${p.day}`;
+}
+function hm(ts, tz) {
+  const p = partsIn(ts, tz);
+  return `${p.hour}:${p.minute}`;
+}
+function addDays(key, n) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+function dayLabel(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  const noon = Date.UTC(y, m - 1, d, 12);
+  const locale = lang === "zh" ? "zh-TW" : "en-US";
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(noon);
+  const md = lang === "zh" ? `${m}/${d}` :
+    new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).format(noon);
+  return { md, weekday, full: lang === "zh" ? `${md}（${weekday.replace("週", "")}）` : `${weekday}, ${md}` };
+}
+function rangeText(s, e) {
+  const plus = dayKey(e - 1, viewTz) !== dayKey(s, viewTz) ? "<sup>+1</sup>" : "";
+  return `${hm(s, viewTz)} – ${hm(e, viewTz)}${plus}`;
+}
+function tzLabel(tz) {
+  let off = "";
+  try {
+    off = new Intl.DateTimeFormat("en-US", { timeZone: tz, timeZoneName: "shortOffset" })
+      .formatToParts(Date.now()).find((x) => x.type === "timeZoneName").value;
+  } catch {}
+  return `${tz.replace(/_/g, " ")} (${off})`;
+}
+
+// ---- 空檔計算：開放時段 − 已被預約 − 已過去 ----
+function openPieces() {
+  const nowRounded = Math.ceil(Date.now() / STEP) * STEP;
+  const taken = [...booked, ...mine];
+  const pieces = [];
+  (data.slots || []).forEach((s) => {
+    const tz = s.tz || data.timezone;
+    const start = zonedToTs(s.date, s.start, tz);
+    let end = zonedToTs(s.date, s.end, tz);
+    if (end <= start) end = zonedToTs(addDays(s.date, 1), s.end, tz); // 跨午夜
+    let parts = [{ start: Math.max(start, nowRounded), end }];
+    taken.forEach((b) => {
+      parts = parts.flatMap((p) => {
+        if (b.end <= p.start || b.start >= p.end) return [p];
+        const out = [];
+        if (b.start > p.start) out.push({ start: p.start, end: b.start });
+        if (b.end < p.end) out.push({ start: b.end, end: p.end });
+        return out;
+      });
+    });
+    pieces.push(...parts.filter((p) => p.end - p.start >= MIN_LEN));
+  });
+  return pieces.sort((a, b) => a.start - b.start);
+}
+
+// ---- 畫面 ----
+function renderStatic() {
+  const t = I18N[lang];
+  document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const v = t[el.dataset.i18n];
+    if (typeof v === "string") el.textContent = v;
+  });
+  document.getElementById("lang").textContent = t.langBtn;
+  document.getElementById("hint").hidden = !BOOKING_URL;
+  document.title = lang === "zh" ? "家教時段 · Tutoring Availability" : "Tutoring Availability · 家教時段";
+}
+
+function renderTzSelect() {
+  const sel = document.getElementById("tz");
+  sel.innerHTML = "";
+  const common = [...new Set([detectedTz, ...COMMON_TZ])];
+  const g1 = document.createElement("optgroup");
+  g1.label = lang === "zh" ? "常用" : "Common";
+  common.forEach((tz) => g1.appendChild(new Option(tzLabel(tz), tz)));
+  sel.appendChild(g1);
+  if (Intl.supportedValuesOf) {
+    const g2 = document.createElement("optgroup");
+    g2.label = lang === "zh" ? "全部" : "All";
+    Intl.supportedValuesOf("timeZone")
+      .filter((tz) => !common.includes(tz))
+      .forEach((tz) => g2.appendChild(new Option(tz.replace(/_/g, " "), tz)));
+    sel.appendChild(g2);
+  }
+  if (![...sel.options].some((o) => o.value === viewTz)) sel.appendChild(new Option(viewTz, viewTz));
+  sel.value = viewTz;
+}
+
+function renderMine() {
+  const t = I18N[lang];
+  const now = Date.now();
+  mine = mine.filter((b) => b.end > now);
+  store.set("mine", JSON.stringify(mine));
+  const box = document.getElementById("mine");
+  box.hidden = !mine.length;
+  if (!mine.length) return;
+  box.innerHTML = `<strong>${t.mine}</strong><ul>` + mine.map((b) =>
+    `<li>${dayLabel(dayKey(b.start, viewTz)).full} ${rangeText(b.start, b.end)} <small>· ${t.pending}</small></li>`
+  ).join("") + "</ul>";
+}
+
+function renderDays() {
+  if (!data) return;
+  const t = I18N[lang];
+  const list = document.getElementById("days");
+  list.innerHTML = "";
+
+  const notice = document.getElementById("notice");
+  notice.hidden = !(data.notice && data.notice[lang]);
+  if (!notice.hidden) notice.textContent = data.notice[lang];
+  document.getElementById("updated").textContent = data.updated || "";
+  renderMine();
+
+  const pieces = openPieces();
+  if (!pieces.length) {
+    list.innerHTML = `<li class="empty">${t.empty}</li>`;
+    return;
+  }
+
+  const todayKey = dayKey(Date.now(), viewTz);
+  const byDay = {};
+  pieces.forEach((p) => { (byDay[dayKey(p.start, viewTz)] ||= []).push(p); });
+  const lastKey = Object.keys(byDay).sort().pop();
+
+  // 從今天起至少顯示 7 天，若資料更長就延伸到最後一個時段
+  const days = [];
+  for (let k = todayKey; days.length < 7 || k <= lastKey; k = addDays(k, 1)) days.push(k);
+
+  days.forEach((key) => {
+    const { md, weekday } = dayLabel(key);
+    const li = document.createElement("li");
+    li.className = "day" + (key === todayKey ? " today" : "");
+    li.innerHTML = `<div class="date" data-today="${t.today}">${md}<small>${weekday}</small></div>`;
+
+    const box = document.createElement("div");
+    box.className = "slots";
+    const items = byDay[key] || [];
+    if (!items.length) box.innerHTML = `<span class="none">${t.none}</span>`;
+    items.forEach((p) => {
+      const chip = document.createElement(BOOKING_URL ? "button" : "span");
+      chip.className = "slot";
+      chip.innerHTML = rangeText(p.start, p.end);
+      chip.title = t.hours(Math.round((p.end - p.start) / 360000) / 10);
+      if (BOOKING_URL) {
+        chip.type = "button";
+        chip.addEventListener("click", () => openBooking(p, key));
+      }
+      box.appendChild(chip);
+    });
+    li.appendChild(box);
+    list.appendChild(li);
+  });
+}
+
+function renderAll() {
+  renderStatic();
+  renderTzSelect();
+  renderDays();
+}
+
+// ---- 預約對話框 ----
+const dlg = document.getElementById("dlg");
+const form = document.getElementById("form");
+const nameEl = document.getElementById("name");
+const startEl = document.getElementById("start");
+const durEl = document.getElementById("dur");
+const msgEl = document.getElementById("msg");
+const submitEl = document.getElementById("submit");
+const cancelEl = document.getElementById("cancel");
+let current = null;
+
+function setMsg(text, cls) { msgEl.textContent = text || ""; msgEl.className = "msg" + (cls ? " " + cls : ""); }
+
+function fillDurations() {
+  const t = I18N[lang];
+  const s = Number(startEl.value);
+  const prev = Number(durEl.value) || 0;
+  durEl.innerHTML = "";
+  LENGTHS.filter((len) => s + len <= current.end)
+    .forEach((len) => durEl.appendChild(new Option(t.hours(len / 3600000), len)));
+  if ([...durEl.options].some((o) => Number(o.value) === prev)) durEl.value = prev;
+}
+
+function openBooking(piece, key) {
+  const t = I18N[lang];
+  current = piece;
+  renderStatic();
+  document.getElementById("dlgTitle").textContent = t.bookTitle(dayLabel(key).full);
+  nameEl.value = store.get("name") || "";
+  startEl.innerHTML = "";
+  for (let s = piece.start; s + MIN_LEN <= piece.end; s += STEP) {
+    startEl.appendChild(new Option(hm(s, viewTz), s));
+  }
+  fillDurations();
+  setMsg("");
+  [nameEl, startEl, durEl].forEach((el) => { el.disabled = false; });
+  submitEl.hidden = false;
+  submitEl.disabled = false;
+  submitEl.textContent = t.submit;
+  cancelEl.textContent = t.cancel;
+  dlg.showModal();
+  if (!nameEl.value) nameEl.focus();
+}
+
+startEl.addEventListener("change", fillDurations);
+cancelEl.addEventListener("click", () => dlg.close());
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const t = I18N[lang];
+  const name = nameEl.value.trim();
+  if (!name) { setMsg(t.errName, "err"); nameEl.focus(); return; }
+  const start = Number(startEl.value);
+  const end = start + Number(durEl.value);
+  store.set("name", name);
+  submitEl.disabled = true;
+  submitEl.textContent = t.sending;
+  setMsg("");
+  try {
+    const res = await fetch(BOOKING_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // 不觸發 CORS preflight
+      body: JSON.stringify({ name, start: new Date(start).toISOString(), end: new Date(end).toISOString(), tz: viewTz }),
+    });
+    const out = await res.json();
+    if (!out.ok) throw new Error(out.error || "error");
+    mine.push({ start, end });
+    store.set("mine", JSON.stringify(mine));
+    setMsg(t.ok, "ok");
+    submitEl.hidden = true;
+    cancelEl.textContent = t.close;
+    [nameEl, startEl, durEl].forEach((el) => { el.disabled = true; });
+    renderDays();
+    loadBooked();
+  } catch (err) {
+    const m = err.message;
+    setMsg(m === "conflict" ? t.errConflict : m === "not_available" || m === "bad_time" ? t.errUnavailable : m === "name" ? t.errName : t.errGeneric, "err");
+    submitEl.disabled = false;
+    submitEl.textContent = t.submit;
+    if (m === "conflict") loadBooked();
+  }
+});
+
+// ---- 事件與載入 ----
+document.getElementById("lang").addEventListener("click", () => {
+  lang = lang === "zh" ? "en" : "zh";
+  store.set("lang", lang);
+  renderAll();
+});
+document.getElementById("tz").addEventListener("change", (e) => {
+  viewTz = e.target.value;
+  store.set("tz", viewTz);
+  renderDays();
+});
+
+function loadBooked() {
+  if (!BOOKING_URL) return Promise.resolve();
+  return fetch(BOOKING_URL, { cache: "no-store" })
+    .then((r) => r.json())
+    .then((out) => {
+      booked = (out.booked || []).map((b) => ({ start: Date.parse(b.start), end: Date.parse(b.end) }));
+      // 老師在試算表取消的預約，從「你的預約」移除
+      mine = mine.filter((m) => booked.some((b) => b.start === m.start && b.end === m.end));
+      renderDays();
+    })
+    .catch(() => {});
+}
+
+renderAll();
+fetch("availability.json", { cache: "no-store" })
+  .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then((json) => { data = json; renderDays(); })
+  .catch(() => {
+    document.getElementById("days").innerHTML = `<li class="empty">${I18N[lang].loadError}</li>`;
+  });
+loadBooked();
+</script>
+</body>
+</html>
