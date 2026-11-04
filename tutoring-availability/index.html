@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutoring Availability · 家教時段</title>
+<meta name="description" content="Tutoring availability, shown in your own time zone. 家教可上課時段，自動換算成你的時區。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%97%93%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #ffffff;
+    --text: #1d1d1f;
+    --muted: #6e6e73;
+    --line: #e5e5e2;
+    --accent: #2f6f5e;
+    --accent-soft: #e4f0ec;
+    --warn-soft: #fdf3e1;
+    --warn-text: #7a5410;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161617;
+      --card: #1f1f21;
+      --text: #f2f2f2;
+      --muted: #a1a1a6;
+      --line: #313134;
+      --accent: #7cc4ad;
+      --accent-soft: #1f3a32;
+      --warn-soft: #3a2f1a;
+      --warn-text: #f1cf8f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 560px; margin: 0 auto; padding: 32px 16px 48px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  h1 { font-size: 1.5rem; margin: 0; letter-spacing: -0.01em; }
+  .lang {
+    flex: none; border: 1px solid var(--line); background: var(--card); color: var(--text);
+    border-radius: 999px; padding: 6px 12px; font: inherit; font-size: .875rem; cursor: pointer;
+  }
+  .notice {
+    background: var(--warn-soft); color: var(--warn-text);
+    border-radius: 10px; padding: 10px 14px; margin: 20px 0 0; font-size: .9375rem;
+  }
+  .tz {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    margin: 20px 0 4px; font-size: .9375rem; color: var(--muted);
+  }
+  .tz select {
+    font: inherit; color: var(--text); background: var(--card);
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; max-width: 100%;
+  }
+  .hint { color: var(--muted); font-size: .875rem; margin: 0 0 4px; }
+  .days { list-style: none; margin: 0; padding: 0; }
+  .day {
+    display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: start;
+    padding: 14px 0; border-bottom: 1px solid var(--line);
+  }
+  .day:last-child { border-bottom: 0; }
+  .date { font-weight: 600; line-height: 1.3; }
+  .date small { display: block; font-weight: 400; color: var(--muted); font-size: .8125rem; }
+  .today .date::after {
+    content: attr(data-today); display: inline-block; margin-top: 4px;
+    font-size: .6875rem; font-weight: 600; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 4px; padding: 0 4px;
+  }
+  .slots { display: flex; flex-wrap: wrap; gap: 8px; min-height: 28px; align-items: center; }
+  .slot {
+    background: var(--accent-soft); color: var(--accent); font-weight: 600;
+    border-radius: 8px; padding: 4px 10px; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .slot sup { font-weight: 400; font-size: .7em; margin-left: 2px; }
+  .none { color: var(--muted); font-size: .9375rem; }
+  .empty { color: var(--muted); padding: 24px 0; }
+  footer { margin-top: 32px; color: var(--muted); font-size: .8125rem; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 data-i18n="title"></h1>
+    <button class="lang" id="lang" type="button"></button>
+  </header>
+
+  <p class="notice" id="notice" hidden></p>
+
+  <div class="tz">
+    <label for="tz" data-i18n="tzLabel"></label>
+    <select id="tz"></select>
+  </div>
+  <p class="hint" data-i18n="hint"></p>
+
+  <ul class="days" id="days"></ul>
+
+  <footer>
+    <span data-i18n="updated"></span> <span id="updated"></span>
+    · <span data-i18n="footnote"></span>
+  </footer>
+</main>
+
+<script src="tz.js"></script>
+<script>
+const I18N = {
+  zh: {
+    title: "家教可上課時段",
+    tzLabel: "顯示時區：",
+    hint: "想預約請直接傳訊息給我，註明日期和時間。",
+    today: "今天",
+    none: "無空檔",
+    empty: "近期沒有開放時段，請直接聯絡我。",
+    updated: "更新於",
+    footnote: "時間已自動換算成你所選的時區",
+    langBtn: "English",
+    loadError: "時段資料讀取失敗，請重新整理。",
+    groups: ["常用", "全部"],
+    hours: (h) => `${h} 小時`,
+  },
+  en: {
+    title: "Tutoring Availability",
+    tzLabel: "Time zone:",
+    hint: "To book, message me directly with the date and time.",
+    today: "TODAY",
+    none: "Unavailable",
+    empty: "No open slots right now — please contact me directly.",
+    updated: "Updated",
+    footnote: "Times are converted to the time zone you select",
+    langBtn: "中文",
+    loadError: "Couldn't load availability. Please refresh.",
+    groups: ["Common", "All"],
+    hours: (h) => `${h} h`,
+  },
+};
+const STEP = 30 * MIN, MIN_LEN = 60 * MIN;
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+let lang = store.get("lang") || (/^zh/i.test(navigator.language || "") ? "zh" : "en");
+let viewTz = store.get("tz") || Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Taipei";
+let data = null;
+
+// 開放時段 − 已預約 − 已過去；剩不到 1 小時的零碎時段不顯示
+function openPieces() {
+  const nowRounded = Math.ceil(Date.now() / STEP) * STEP;
+  const all = data.slots || [];
+  const taken = all.filter((s) => s.booked).map((s) => slotRange(s, data.timezone));
+  const pieces = [];
+  all.filter((s) => !s.booked).forEach((s) => {
+    const r = slotRange(s, data.timezone);
+    let parts = [{ start: Math.max(r.start, nowRounded), end: r.end }];
+    taken.forEach((b) => {
+      parts = parts.flatMap((p) => {
+        if (b.end <= p.start || b.start >= p.end) return [p];
+        const out = [];
+        if (b.start > p.start) out.push({ start: p.start, end: b.start });
+        if (b.end < p.end) out.push({ start: b.end, end: p.end });
+        return out;
+      });
+    });
+    pieces.push(...parts.filter((p) => p.end - p.start >= MIN_LEN));
+  });
+  return pieces.sort((a, b) => a.start - b.start);
+}
+
+function renderStatic() {
+  const t = I18N[lang];
+  document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t[el.dataset.i18n]; });
+  document.getElementById("lang").textContent = t.langBtn;
+  document.title = lang === "zh" ? "家教時段 · Tutoring Availability" : "Tutoring Availability · 家教時段";
+  fillTzSelect(document.getElementById("tz"), viewTz, t.groups);
+}
+
+function renderDays() {
+  if (!data) return;
+  const t = I18N[lang];
+  const list = document.getElementById("days");
+  list.innerHTML = "";
+
+  const notice = document.getElementById("notice");
+  notice.hidden = !(data.notice && data.notice[lang]);
+  if (!notice.hidden) notice.textContent = data.notice[lang];
+  document.getElementById("updated").textContent = data.updated || "";
+
+  const pieces = openPieces();
+  if (!pieces.length) {
+    list.innerHTML = `<li class="empty">${t.empty}</li>`;
+    return;
+  }
+
+  const todayKey = dayKey(Date.now(), viewTz);
+  const byDay = {};
+  pieces.forEach((p) => { (byDay[dayKey(p.start, viewTz)] ||= []).push(p); });
+  const lastKey = Object.keys(byDay).sort().pop();
+
+  // 從今天起至少顯示 7 天，若資料更長就延伸到最後一個時段
+  const days = [];
+  for (let k = todayKey; days.length < 7 || k <= lastKey; k = addDays(k, 1)) days.push(k);
+
+  const locale = lang === "zh" ? "zh-TW" : "en-US";
+  days.forEach((key) => {
+    const [y, m, d] = key.split("-").map(Number);
+    const noon = Date.UTC(y, m - 1, d, 12);
+    const weekday = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(noon);
+    const md = lang === "zh" ? `${m}/${d}` :
+      new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).format(noon);
+
+    const li = document.createElement("li");
+    li.className = "day" + (key === todayKey ? " today" : "");
+    li.innerHTML = `<div class="date" data-today="${t.today}">${md}<small>${weekday}</small></div>`;
+
+    const box = document.createElement("div");
+    box.className = "slots";
+    const items = byDay[key] || [];
+    if (!items.length) box.innerHTML = `<span class="none">${t.none}</span>`;
+    items.forEach((p) => {
+      const chip = document.createElement("span");
+      chip.className = "slot";
+      const plus = dayKey(p.end - 1, viewTz) !== key ? "<sup>+1</sup>" : "";
+      chip.innerHTML = `${hm(p.start, viewTz)} – ${hm(p.end, viewTz)}${plus}`;
+      chip.title = t.hours(Math.round((p.end - p.start) / 360000) / 10);
+      box.appendChild(chip);
+    });
+    li.appendChild(box);
+    list.appendChild(li);
+  });
+}
+
+document.getElementById("lang").addEventListener("click", () => {
+  lang = lang === "zh" ? "en" : "zh";
+  store.set("lang", lang);
+  renderStatic();
+  renderDays();
+});
+document.getElementById("tz").addEventListener("change", (e) => {
+  viewTz = e.target.value;
+  store.set("tz", viewTz);
+  renderDays();
+});
+
+renderStatic();
+fetch("availability.json", { cache: "no-store" })
+  .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then((json) => { data = json; renderDays(); })
+  .catch(() => {
+    document.getElementById("days").innerHTML = `<li class="empty">${I18N[lang].loadError}</li>`;
+  });
+</script>
+</body>
+</html>

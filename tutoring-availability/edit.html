@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>編輯家教時段</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%8F%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #ffffff;
+    --text: #1d1d1f;
+    --muted: #6e6e73;
+    --line: #e5e5e2;
+    --accent: #2f6f5e;
+    --accent-soft: #e4f0ec;
+    --booked: #8a4b0f;
+    --booked-soft: #fbeedd;
+    --err: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161617;
+      --card: #1f1f21;
+      --text: #f2f2f2;
+      --muted: #a1a1a6;
+      --line: #313134;
+      --accent: #7cc4ad;
+      --accent-soft: #1f3a32;
+      --booked: #f1cf8f;
+      --booked-soft: #3a2f1a;
+      --err: #f2b8b5;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 24px 16px 120px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  h1 { font-size: 1.375rem; margin: 0; }
+  a { color: var(--accent); }
+  button, input, select, textarea { font: inherit; color: var(--text); }
+  input, select, textarea {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; max-width: 100%;
+  }
+  .btn {
+    border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-top: 16px; }
+  .card h2 { font-size: 1rem; margin: 0 0 8px; }
+  .muted { color: var(--muted); font-size: .875rem; }
+  .field { display: block; margin: 10px 0; font-size: .875rem; color: var(--muted); }
+  .field > input, .field > select, .field > textarea { display: block; width: 100%; margin-top: 4px; }
+  details summary { cursor: pointer; font-weight: 600; }
+  ol.steps { padding-left: 20px; margin: 8px 0; font-size: .9375rem; }
+  .row-inline { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .row-inline input { flex: 1; min-width: 200px; }
+
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin: 20px 0 8px; }
+  .day { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; }
+  .day.today { border-color: var(--accent); }
+  .dhead { display: flex; justify-content: space-between; align-items: center; }
+  .dhead b small { font-weight: 400; color: var(--muted); margin-left: 6px; }
+  .entry { display: flex; align-items: center; gap: 4px 12px; flex-wrap: wrap; padding: 8px 0; }
+  .entry + .entry { border-top: 1px dashed var(--line); }
+  .entry .times { display: flex; align-items: center; gap: 6px; flex: none; }
+  .entry .meta { display: flex; align-items: center; gap: 8px; flex: 1 1 14em; min-width: 14em; }
+  .entry input[type=time] { min-width: 8.8em; font-variant-numeric: tabular-nums; }
+  .entry .chk { flex: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 8px; cursor: pointer; user-select: none; font-size: .9375rem; }
+  .entry .chk input { width: 18px; height: 18px; margin: 0; }
+  .entry.booked .chk { background: var(--booked-soft); color: var(--booked); font-weight: 600; }
+  .entry.booked input[type=time] { color: var(--booked); }
+  .entry .del { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 1.1rem; padding: 2px 6px; margin-left: auto; }
+  .entry .alt { flex: 1; min-width: 0; color: var(--muted); font-size: .8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .empty { color: var(--muted); font-size: .9375rem; padding: 4px 0; }
+
+  .savebar {
+    position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .savebar .inner { max-width: 680px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  #status { font-size: .9375rem; }
+  #status.err { color: var(--err); }
+  #status.ok { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>編輯家教時段</h1>
+    <a href="./" target="_blank" rel="noopener">看公開頁 ↗</a>
+  </header>
+
+  <section class="card" id="connect" hidden>
+    <h2>第一次使用：連上 GitHub</h2>
+    <p class="muted">只有拿得到你 GitHub 金鑰（token）的人才能儲存。金鑰只存在這台裝置的瀏覽器裡，不會出現在網站上。</p>
+    <ol class="steps">
+      <li>開 <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → 新增 Fine-grained token</a></li>
+      <li>Repository access 選 <b>Only select repositories</b> → <code>AnLei1627.github.io</code></li>
+      <li>Permissions → Repository permissions → <b>Contents：Read and write</b></li>
+      <li>產生後複製，貼到下面</li>
+    </ol>
+    <div class="row-inline">
+      <input id="tokenInput" type="password" placeholder="github_pat_…" autocomplete="off">
+      <button class="btn primary" id="connectBtn" type="button">連線</button>
+    </div>
+  </section>
+
+  <details class="card" id="settings">
+    <summary>設定（時區・公告）</summary>
+    <label class="field">我現在的時區（時段用這個時區填）
+      <select id="tz"></select>
+    </label>
+    <p class="muted">切換時區時，現有時段會自動換算，實際時間不變。</p>
+    <label class="field">公告（中文）<input id="noticeZh" placeholder="留空 = 不顯示"></label>
+    <label class="field">公告（English）<input id="noticeEn" placeholder="Leave empty to hide"></label>
+    <p class="muted" id="who"></p>
+    <button class="btn" id="logout" type="button" hidden>登出（從這台裝置移除金鑰）</button>
+  </details>
+
+  <div class="toolbar">
+    <span class="muted">勾「已約」＝被訂走，公開頁會自動扣掉。</span>
+    <button class="btn" id="copyWeek" type="button">複製本週到下週</button>
+  </div>
+
+  <div id="days"></div>
+</main>
+
+<div class="savebar">
+  <div class="inner">
+    <span id="status">載入中…</span>
+    <button class="btn primary" id="save" type="button" disabled>儲存</button>
+  </div>
+</div>
+
+<script src="tz.js"></script>
+<script>
+const API = "https://api.github.com/repos/AnLei1627/AnLei1627.github.io/contents/tutoring-availability/availability.json";
+const KEEP_PAST_DAYS = 7;   // 儲存時保留幾天前的舊時段（之後自動清掉）
+const SHOW_DAYS = 14;       // 編輯畫面至少顯示幾天
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+
+let token = store.get("gh_token") || "";
+let data = null;   // { updated, timezone, notice:{zh,en}, slots:[{date,start,end,booked}] }
+let sha = null;
+let dirty = false;
+
+const $ = (id) => document.getElementById(id);
+
+function setStatus(text, cls) { $("status").textContent = text; $("status").className = cls || ""; }
+function markDirty() {
+  dirty = true;
+  $("save").disabled = !token;
+  setStatus(token ? "有未儲存的變更" : "有變更（先連線 GitHub 才能儲存）");
+}
+window.addEventListener("beforeunload", (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+// ---- GitHub ----
+function headers() {
+  return { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" };
+}
+function decodeB64(b64) {
+  const bin = atob(b64.replace(/\s/g, ""));
+  return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+}
+function encodeB64(str) {
+  let bin = "";
+  new TextEncoder().encode(str).forEach((b) => { bin += String.fromCharCode(b); });
+  return btoa(bin);
+}
+
+async function load() {
+  setStatus("載入中…");
+  try {
+    if (token) {
+      const r = await fetch(API + "?ref=main", { headers: headers(), cache: "no-store" });
+      if (r.status === 401) throw new Error("金鑰無效或過期，請重新連線");
+      if (r.status === 404) throw new Error("金鑰沒有這個 repo 的權限");
+      if (!r.ok) throw new Error("GitHub 回應 " + r.status);
+      const out = await r.json();
+      sha = out.sha;
+      data = JSON.parse(decodeB64(out.content));
+    } else {
+      const r = await fetch("availability.json", { cache: "no-store" });
+      data = await r.json();
+    }
+    normalize();
+    dirty = false;
+    renderAll();
+    setStatus(token ? "已是最新" : "唯讀：先連線 GitHub 才能儲存");
+  } catch (e) {
+    setStatus(e.message, "err");
+    if (/金鑰/.test(e.message)) {
+      token = "";
+      store.del("gh_token");
+      renderConnect();
+      load().then(() => setStatus(e.message, "err")); // 改用公開檔唯讀顯示，但保留錯誤訊息
+    }
+  }
+}
+
+async function save() {
+  $("save").disabled = true;
+  setStatus("儲存中…");
+  try {
+    const body = { message: "Update tutoring availability", content: encodeB64(serialize()), sha, branch: "main" };
+    const r = await fetch(API, { method: "PUT", headers: headers(), body: JSON.stringify(body) });
+    if (r.status === 409 || r.status === 422) throw new Error("檔案在別處被改過了（例如 AI 剛幫你更新）。請重新整理頁面再改。");
+    if (r.status === 401) throw new Error("金鑰無效或過期，請重新連線");
+    if (r.status === 403 || r.status === 404) throw new Error("金鑰沒有寫入權限（Contents 要選 Read and write）");
+    if (!r.ok) throw new Error("儲存失敗：GitHub 回應 " + r.status);
+    sha = (await r.json()).content.sha;
+    dirty = false;
+    renderDays();
+    setStatus("已儲存 ✓ 約 1 分鐘後公開頁更新", "ok");
+  } catch (e) {
+    setStatus(e.message, "err");
+    $("save").disabled = false;
+  }
+}
+
+// ---- 資料 ----
+function todayKey() { return dayKey(Date.now(), data.timezone); }
+
+// 全部時段統一換成 data.timezone 的牆上時間
+function convertAll(fromTzOf, toTz) {
+  data.slots.forEach((s) => {
+    const r = slotRange(s, fromTzOf(s));
+    s.date = dayKey(r.start, toTz);
+    s.start = hm(r.start, toTz);
+    s.end = hm(r.end, toTz);
+    delete s.tz;
+  });
+}
+function normalize() {
+  data.timezone ||= "Asia/Taipei";
+  data.notice ||= {};
+  data.slots ||= [];
+  if (data.slots.some((s) => s.tz && s.tz !== data.timezone)) convertAll((s) => s.tz || data.timezone, data.timezone);
+  data.slots.forEach((s) => { delete s.tz; s.booked = !!s.booked; });
+}
+
+function serialize() {
+  const minKey = addDays(todayKey(), -KEEP_PAST_DAYS);
+  const slots = data.slots
+    .filter((s) => s.date >= minKey && s.start !== s.end)
+    .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start))
+    .map((s) => {
+      const o = { date: s.date, start: s.start, end: s.end };
+      if (s.booked) o.booked = true;
+      return "    " + JSON.stringify(o).replace(/,"/g, ', "').replace(/":/g, '": ').replace(/^\{/, "{ ").replace(/\}$/, " }");
+    });
+  const notice = ["zh", "en"].filter((k) => data.notice[k])
+    .map((k) => `    "${k}": ${JSON.stringify(data.notice[k])}`);
+  const out = [
+    "{",
+    `  "updated": ${JSON.stringify(todayKey())},`,
+    `  "timezone": ${JSON.stringify(data.timezone)},`,
+  ];
+  if (notice.length) out.push(`  "notice": {\n${notice.join(",\n")}\n  },`);
+  out.push(`  "slots": [`, slots.join(",\n"), "  ]", "}", "");
+  return out.join("\n");
+}
+
+// ---- 畫面 ----
+function dayTitle(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  const w = "日一二三四五六"[weekdayOf(key)];
+  return `${m}/${d}<small>週${w}</small>`;
+}
+
+function renderConnect() {
+  $("connect").hidden = !!token;
+  $("logout").hidden = !token;
+  $("who").textContent = token ? "已連線 GitHub，可以儲存。" : "";
+  $("save").disabled = !token || !dirty;
+}
+
+function renderSettings() {
+  fillTzSelect($("tz"), data.timezone, ["常用", "全部"]);
+  $("noticeZh").value = data.notice.zh || "";
+  $("noticeEn").value = data.notice.en || "";
+}
+
+function renderDays() {
+  const box = $("days");
+  box.innerHTML = "";
+  const today = todayKey();
+  const last = data.slots.map((s) => s.date).sort().pop() || today;
+  const keys = [];
+  for (let k = today; keys.length < SHOW_DAYS || k <= last; k = addDays(k, 1)) keys.push(k);
+
+  const showTaipei = data.timezone !== "Asia/Taipei";
+
+  keys.forEach((key) => {
+    const card = document.createElement("div");
+    card.className = "day" + (key === today ? " today" : "");
+    card.innerHTML = `<div class="dhead"><b>${dayTitle(key)}${key === today ? "<small>今天</small>" : ""}</b></div>`;
+    const add = document.createElement("button");
+    add.className = "btn";
+    add.type = "button";
+    add.textContent = "+ 時段";
+    add.addEventListener("click", () => addSlot(key));
+    card.firstChild.appendChild(add);
+
+    const entries = data.slots.filter((s) => s.date === key).sort((a, b) => a.start.localeCompare(b.start));
+    if (!entries.length) {
+      card.insertAdjacentHTML("beforeend", `<div class="empty">（無）</div>`);
+    }
+    entries.forEach((s) => {
+      const row = document.createElement("div");
+      row.className = "entry" + (s.booked ? " booked" : "");
+      row.innerHTML = `
+        <div class="times">
+          <input type="time" step="900" value="${s.start}" aria-label="開始"> –
+          <input type="time" step="900" value="${s.end}" aria-label="結束">
+        </div>
+        <div class="meta">
+          <label class="chk"><input type="checkbox" ${s.booked ? "checked" : ""}> 已約</label>
+          <button class="del" type="button" aria-label="刪除">✕</button>
+        </div>`;
+      const [startEl, endEl] = row.querySelectorAll("input[type=time]");
+      startEl.addEventListener("change", () => { if (startEl.value) { s.start = startEl.value; markDirty(); renderDays(); } });
+      endEl.addEventListener("change", () => { if (endEl.value) { s.end = endEl.value; markDirty(); renderDays(); } });
+      row.querySelector(".chk input").addEventListener("change", (e) => {
+        s.booked = e.target.checked;
+        row.classList.toggle("booked", s.booked);
+        markDirty();
+      });
+      row.querySelector(".del").addEventListener("click", () => {
+        data.slots.splice(data.slots.indexOf(s), 1);
+        markDirty();
+        renderDays();
+      });
+      if (showTaipei) {
+        const r = slotRange(s, data.timezone);
+        const dk = dayKey(r.start, "Asia/Taipei");
+        const [, m, d] = dk.split("-").map(Number);
+        row.querySelector(".chk").insertAdjacentHTML("afterend", `<span class="alt">＝ 台北 ${m}/${d} ${hm(r.start, "Asia/Taipei")}–${hm(r.end, "Asia/Taipei")}</span>`);
+      }
+      card.appendChild(row);
+    });
+    box.appendChild(card);
+  });
+}
+
+function renderAll() {
+  renderConnect();
+  renderSettings();
+  renderDays();
+}
+
+function addSlot(key) {
+  const same = data.slots.filter((s) => s.date === key).sort((a, b) => a.start.localeCompare(b.start));
+  let start = "19:00", end = "21:00";
+  if (same.length) {
+    const lastEnd = same[same.length - 1].end;
+    const h = Math.min(+lastEnd.slice(0, 2), 21);
+    start = `${String(h).padStart(2, "0")}:${lastEnd.slice(3)}`;
+    end = `${String(Math.min(h + 2, 23)).padStart(2, "0")}:${h + 2 > 23 ? "59" : lastEnd.slice(3)}`;
+  }
+  data.slots.push({ date: key, start, end, booked: false });
+  markDirty();
+  renderDays();
+}
+
+// 本週（週一到週日）的時段 → 下週同一天（一律設為開放）；下週那天已經有時段就跳過
+function copyWeek() {
+  const today = todayKey();
+  const monday = addDays(today, -((weekdayOf(today) + 6) % 7));
+  let copied = 0, skipped = 0;
+  for (let i = 0; i < 7; i++) {
+    const src = addDays(monday, i), dst = addDays(src, 7);
+    const from = data.slots.filter((s) => s.date === src);
+    if (!from.length) continue;
+    if (data.slots.some((s) => s.date === dst)) { skipped++; continue; }
+    from.forEach((s) => { data.slots.push({ date: dst, start: s.start, end: s.end, booked: false }); copied++; });
+  }
+  if (copied) { markDirty(); renderDays(); }
+  setStatus(copied ? `已複製 ${copied} 個時段到下週（已約的也變回開放）${skipped ? `；${skipped} 天下週已有時段，跳過` : ""}`
+                   : "沒有可複製的（本週沒有時段，或下週那幾天已經排了）", copied ? "" : "err");
+}
+
+// ---- 事件 ----
+$("connectBtn").addEventListener("click", () => {
+  const v = $("tokenInput").value.trim();
+  if (!v) return;
+  token = v;
+  store.set("gh_token", token);
+  $("tokenInput").value = "";
+  renderConnect();
+  load();
+});
+$("logout").addEventListener("click", () => {
+  if (!confirm("從這台裝置移除 GitHub 金鑰？")) return;
+  token = "";
+  store.del("gh_token");
+  renderConnect();
+  setStatus("已登出：唯讀");
+});
+$("tz").addEventListener("change", (e) => {
+  const oldTz = data.timezone;
+  data.timezone = e.target.value;
+  convertAll(() => oldTz, data.timezone);
+  markDirty();
+  renderDays();
+});
+$("noticeZh").addEventListener("input", (e) => { data.notice.zh = e.target.value.trim(); markDirty(); });
+$("noticeEn").addEventListener("input", (e) => { data.notice.en = e.target.value.trim(); markDirty(); });
+$("copyWeek").addEventListener("click", copyWeek);
+$("save").addEventListener("click", save);
+
+renderConnect();
+load();
+</script>
+</body>
+</html>
