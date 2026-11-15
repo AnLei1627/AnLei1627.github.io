@@ -23,7 +23,7 @@
  *   會失敗；到時要加「有新版本，關閉所有分頁後重新開啟即可更新」提示或 skipWaiting 流程。
  */
 
-const VERSION = "668c3243dd73"
+const VERSION = "bf162eaa7043"
 /** [相對於 scope 的路徑, 檔名是否含內容雜湊] */
 const FILES = [
   ["assets/KaTeX_AMS-Regular-BQhdFMY1.woff2",true],
@@ -45,12 +45,13 @@ const FILES = [
   ["assets/KaTeX_Size2-Regular-Dy4dx90m.woff2",true],
   ["assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2",true],
   ["assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",true],
-  ["assets/claude-CnK7zRjo.js",true],
+  ["assets/claude-Co0uWw70.js",true],
   ["assets/error-BTdmRKoB.js",true],
-  ["assets/main-CLGq2orf.css",true],
-  ["assets/main-De7UPT3N.js",true],
+  ["assets/katex-BhzyR5At.js",true],
+  ["assets/main-u2C3ghhX.js",true],
+  ["assets/main-yuInFxdL.css",true],
+  ["assets/node.browser-BuIVl2oM.js",true],
   ["assets/node.browser-HQ5SKBOf.js",true],
-  ["assets/node.browser-LiJwZHCT.js",true],
   ["assets/pointer-bOBtX2ym.js",true],
   ["favicon.svg",false],
   ["icons.svg",false],
