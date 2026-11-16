@@ -23,7 +23,7 @@
  *   會失敗；到時要加「有新版本，關閉所有分頁後重新開啟即可更新」提示或 skipWaiting 流程。
  */
 
-const VERSION = "bf162eaa7043"
+const VERSION = "5c032ade7900"
 /** [相對於 scope 的路徑, 檔名是否含內容雜湊] */
 const FILES = [
   ["assets/KaTeX_AMS-Regular-BQhdFMY1.woff2",true],
@@ -45,14 +45,20 @@ const FILES = [
   ["assets/KaTeX_Size2-Regular-Dy4dx90m.woff2",true],
   ["assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2",true],
   ["assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",true],
-  ["assets/claude-Co0uWw70.js",true],
+  ["assets/claude-CWepsRgI.js",true],
   ["assets/error-BTdmRKoB.js",true],
   ["assets/katex-BhzyR5At.js",true],
-  ["assets/main-u2C3ghhX.js",true],
-  ["assets/main-yuInFxdL.css",true],
-  ["assets/node.browser-BuIVl2oM.js",true],
+  ["assets/latency-4YWLQEHd.js",true],
+  ["assets/localChannel-v60nAqC9.js",true],
+  ["assets/main-CaesVX22.css",true],
+  ["assets/main-Cdjq7Vpc.js",true],
+  ["assets/node.browser-BppUM9g8.js",true],
   ["assets/node.browser-HQ5SKBOf.js",true],
   ["assets/pointer-bOBtX2ym.js",true],
+  ["assets/relay-KwzsoCyb.js",true],
+  ["assets/session-COJWBpl1.js",true],
+  ["assets/types-CFU0twbU.js",true],
+  ["assets/yjs-ByfhKFdh.js",true],
   ["favicon.svg",false],
   ["icons.svg",false],
   ["index.html",false],
