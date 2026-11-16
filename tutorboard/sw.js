@@ -23,11 +23,11 @@
  *   會失敗；到時要加「有新版本，關閉所有分頁後重新開啟即可更新」提示或 skipWaiting 流程。
  */
 
-const VERSION = "9afe3fc1e05f"
+const VERSION = "19adaa4c9bc9"
 /** [相對於 scope 的路徑, 檔名是否含內容雜湊] */
 const FILES = [
   ["assets/ClassDialog-CQmW9vFe.css",true],
-  ["assets/ClassDialog-Ch4BZc1U.js",true],
+  ["assets/ClassDialog-CXoJo-TD.js",true],
   ["assets/KaTeX_AMS-Regular-BQhdFMY1.woff2",true],
   ["assets/KaTeX_Caligraphic-Bold-Dq_IR9rO.woff2",true],
   ["assets/KaTeX_Caligraphic-Regular-Di6jR-x-.woff2",true],
@@ -47,19 +47,19 @@ const FILES = [
   ["assets/KaTeX_Size2-Regular-Dy4dx90m.woff2",true],
   ["assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2",true],
   ["assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",true],
-  ["assets/claude-D_OPG1oo.js",true],
+  ["assets/claude-DvJrofC8.js",true],
   ["assets/error-BTdmRKoB.js",true],
   ["assets/katex-BYLiqMcl.js",true],
-  ["assets/latency-DwDv0ijJ.js",true],
-  ["assets/localChannel-DWfJW7Nz.js",true],
+  ["assets/latency-Ddi_uA-P.js",true],
+  ["assets/localChannel-DDUm2Xlw.js",true],
+  ["assets/main-CL6RtgSb.js",true],
   ["assets/main-D5IJKv42.css",true],
-  ["assets/main-VEEXCLyK.js",true],
   ["assets/marked.esm-CF3wyUyR.js",true],
-  ["assets/node.browser-DnRP4Eg-.js",true],
+  ["assets/node.browser-CU_M8yd_.js",true],
   ["assets/node.browser-HQ5SKBOf.js",true],
   ["assets/pointer-bOBtX2ym.js",true],
-  ["assets/relay-DZSR_3GV.js",true],
-  ["assets/session-CvpMd9GJ.js",true],
+  ["assets/relay-Czl032Lj.js",true],
+  ["assets/session-C9UIKLsH.js",true],
   ["assets/types-CFU0twbU.js",true],
   ["assets/yjs-ByfhKFdh.js",true],
   ["favicon.svg",false],
