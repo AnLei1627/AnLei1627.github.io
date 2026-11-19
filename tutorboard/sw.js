@@ -23,12 +23,12 @@
  *   會失敗；到時要加「有新版本，關閉所有分頁後重新開啟即可更新」提示或 skipWaiting 流程。
  */
 
-const VERSION = "defa3e5ee435"
+const VERSION = "f51fa6c93e5a"
 /** [相對於 scope 的路徑, 檔名是否含內容雜湊] */
 const FILES = [
-  ["assets/ClassDialog-Bq9yaBLu.js",true],
+  ["assets/ClassDialog-DeMO6O1u.js",true],
   ["assets/ClassDialog-DqEkpd7g.css",true],
-  ["assets/ExportDialog-Bs_hUxLE.js",true],
+  ["assets/ExportDialog-CZ3plkoL.js",true],
   ["assets/KaTeX_AMS-Regular-BQhdFMY1.woff2",true],
   ["assets/KaTeX_Caligraphic-Bold-Dq_IR9rO.woff2",true],
   ["assets/KaTeX_Caligraphic-Regular-Di6jR-x-.woff2",true],
@@ -48,21 +48,22 @@ const FILES = [
   ["assets/KaTeX_Size2-Regular-Dy4dx90m.woff2",true],
   ["assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2",true],
   ["assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",true],
-  ["assets/PdfImportDialog-BSVbTb2l.js",true],
-  ["assets/claude-B9KkP193.js",true],
-  ["assets/e2e-DfQLYvnE.js",true],
+  ["assets/PdfImportDialog-t-TbcawM.js",true],
+  ["assets/claude-Cnef-US3.js",true],
+  ["assets/e2e-ClSaDugc.js",true],
   ["assets/error-BTdmRKoB.js",true],
   ["assets/katex-BYLiqMcl.js",true],
-  ["assets/latency-edyIA5J2.js",true],
-  ["assets/localChannel-DZuddJca.js",true],
-  ["assets/main-CNFtrDtJ.js",true],
+  ["assets/latency-DwQ5FBe_.js",true],
+  ["assets/localChannel-GsjQg86I.js",true],
+  ["assets/main-CB21pwbJ.js",true],
   ["assets/main-CqVy_uBD.css",true],
   ["assets/marked.esm-CF3wyUyR.js",true],
-  ["assets/node.browser-6nIyIKef.js",true],
+  ["assets/node.browser-CFjkwUOy.js",true],
   ["assets/node.browser-HQ5SKBOf.js",true],
   ["assets/pointer-bOBtX2ym.js",true],
-  ["assets/relay-Bxhm6ErJ.js",true],
-  ["assets/session-CjaFPDBu.js",true],
+  ["assets/preload-helper-D8wZkntb.js",true],
+  ["assets/relay-DtlyNQNC.js",true],
+  ["assets/session-B0wYU6hG.js",true],
   ["assets/types-CFU0twbU.js",true],
   ["assets/yjs-ByfhKFdh.js",true],
   ["favicon.svg",false],
