@@ -23,11 +23,11 @@
  *   會失敗；到時要加「有新版本，關閉所有分頁後重新開啟即可更新」提示或 skipWaiting 流程。
  */
 
-const VERSION = "9b1427bc8eef"
+const VERSION = "1602a3495d1c"
 /** [相對於 scope 的路徑, 檔名是否含內容雜湊] */
 const FILES = [
-  ["assets/ClassDialog-D2drbo6J.js",true],
   ["assets/ClassDialog-DqEkpd7g.css",true],
+  ["assets/ClassDialog-_iCLRywd.js",true],
   ["assets/KaTeX_AMS-Regular-BQhdFMY1.woff2",true],
   ["assets/KaTeX_Caligraphic-Bold-Dq_IR9rO.woff2",true],
   ["assets/KaTeX_Caligraphic-Regular-Di6jR-x-.woff2",true],
@@ -47,20 +47,20 @@ const FILES = [
   ["assets/KaTeX_Size2-Regular-Dy4dx90m.woff2",true],
   ["assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2",true],
   ["assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2",true],
-  ["assets/claude-B7htuwL-.js",true],
-  ["assets/e2e-DVAZ49Cc.js",true],
+  ["assets/claude-debdpVdj.js",true],
+  ["assets/e2e-Bv7rEU86.js",true],
   ["assets/error-BTdmRKoB.js",true],
   ["assets/katex-BYLiqMcl.js",true],
-  ["assets/latency-CFYUxHTb.js",true],
-  ["assets/localChannel-CLTH2tRx.js",true],
-  ["assets/main-CR0tFMow.css",true],
-  ["assets/main-CxGBmc3N.js",true],
+  ["assets/latency-Cos4j-z5.js",true],
+  ["assets/localChannel-KdRxO_lb.js",true],
+  ["assets/main-CJT3ftJK.js",true],
+  ["assets/main-oA3c4jpH.css",true],
   ["assets/marked.esm-CF3wyUyR.js",true],
   ["assets/node.browser-HQ5SKBOf.js",true],
-  ["assets/node.browser-SdRfNXzP.js",true],
+  ["assets/node.browser-ZxcnEuEI.js",true],
   ["assets/pointer-bOBtX2ym.js",true],
-  ["assets/relay-D9Z-agTp.js",true],
-  ["assets/session-D1g_oA8A.js",true],
+  ["assets/relay-BqHlNinX.js",true],
+  ["assets/session-DMqgcxvG.js",true],
   ["assets/types-CFU0twbU.js",true],
   ["assets/yjs-ByfhKFdh.js",true],
   ["favicon.svg",false],
